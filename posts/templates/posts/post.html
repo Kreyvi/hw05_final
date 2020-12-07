@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Пост{% endblock %}
+{% block header %}Страница сообщения{% endblock %}
+{% block content %}
+{% include "includes/user_card.html" %}
+
+<div class="card-body">
+    <div class="col-md-9">
+        <!-- Пост -->
+        <div class="card mb-3 mt-1 shadow-sm">
+            <div class="card-body">
+                <p class="card-text">
+                    <!-- Ссылка на страницу автора в атрибуте href; username автора в тексте ссылки -->
+                    <a href="{% url 'profile' post.author.username %}"><strong
+                            class="d-block text-gray-dark">@{{
+                        post.author.username }}</strong></a>
+                    <!-- Текст поста -->
+                    {{ post.text }}
+                    {% include "includes/image_thumbnail.html" %}
+                </p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="btn-group ">
+                        <!-- Ссылка на редактирование, показывается только автору записи -->
+                        {% if request.user == post.author %}
+                        <a class="btn btn-sm text-muted"
+                           href="{% url 'post_edit' post.author post.id %}"
+                           role="button">Редактировать</a>
+                        {% endif %}
+                    </div>
+                    <!-- Дата публикации  -->
+                    <small class="text-muted">{{ post.pub_date }}</small>
+
+                </div>
+            </div>
+        </div>
+        {% include "includes/comments.html" %}
+        {# тут будет совсем отдельно#}
+    </div>
+
+</div>
+
+{% endblock %}
+</main>
