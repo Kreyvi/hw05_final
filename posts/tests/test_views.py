@@ -109,4 +109,3 @@ class ContextCheckTests(TestCase):
         self.assertEqual('Text', text_check)
         self.assertEqual(self.user, author_check)
         self.assertEqual(25, counter_check)
-

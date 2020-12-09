@@ -32,6 +32,7 @@ class CommentFollowTests(TestCase):
         cls.form_data = {'text': 'erere'}
 
     def test_guest_comment(self):
+        """ Checking if unauthorized user redirected"""
         response = self.guest_user.get(
             reverse('add_comment', args=(self.user, self.post.id)), follow=True
         )
@@ -42,22 +43,22 @@ class CommentFollowTests(TestCase):
                        ))
 
     def test_guest_comment_post(self):
-        """ Проверяем отсутствие формы для комментирования"""
+        """ Checking that there is no form on comment page"""
         response = self.guest_user.get(
             path=reverse('post', args=(self.user, self.post.id)),
         )
         self.assertNotIn('<form', response.content.decode())
 
-    def test_follow(self):
+    def test_follow_unfollow(self):
+        """ Checking follow page with and without follow
+         Checking follow and unfollow functioning"""
+
         Post.objects.create(
             author=self.user,
             text='Text',
         )
-        """ Проверяем что страница с подписками пуста """
         response = self.follower_client.get(reverse('follow_index'))
         self.assertEqual(0, len(response.context.get('page')))
-
-        """ Подписываемся на юзера и проверяем подписку """
         self.follower_client.get(
             reverse('profile_follow', args=(self.user,))
         )
@@ -66,12 +67,13 @@ class CommentFollowTests(TestCase):
             author=self.user,
             text='Text1',
         )
-
-        """ Проверяем где появляются посты """
         response_follower = self.follower_client.get(reverse('follow_index'))
         self.assertNotEqual(0, len(response_follower.context.get('page')))
         response_following = self.authorized_user.get(reverse('follow_index'))
         self.assertEqual(0, len(response_following.context.get('page')))
-
-
-
+        self.follower_client.get(
+            reverse('profile_unfollow', args=(self.user,))
+        )
+        self.assertEqual(0, self.user.following.count())
+        response_unfollow = self.follower_client.get(reverse('follow_index'))
+        self.assertEqual(0, len(response_unfollow.context.get('page')))

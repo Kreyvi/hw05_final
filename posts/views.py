@@ -11,8 +11,8 @@ from .models import Group, Post, Follow
 @cache_page(20)
 def index(request):
     """Main page '/' """
-    post_list = Post.objects.all()
-    paginator = Paginator(post_list, 10)
+    posts = Post.objects.all()
+    paginator = Paginator(posts, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     context = {
@@ -29,8 +29,8 @@ def index(request):
 def group_posts(request, slug):
     """Group posts page '/group/slug/' """
     group = get_object_or_404(Group, slug=slug)
-    post_list = group.posts.all()
-    paginator = Paginator(post_list, 10)
+    posts = group.posts.all()
+    paginator = Paginator(posts, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
 
@@ -152,7 +152,7 @@ def follow_index(request):
 def profile_follow(request, username):
     user_to_follow = get_object_or_404(User, username=username)
 
-    if user_to_follow.following.filter(user=request.user.id):
+    if user_to_follow.following.filter(user=request.user.id).exists():
         return redirect('profile', username=username)
     elif request.user == user_to_follow:
         return redirect('index')
@@ -164,8 +164,8 @@ def profile_follow(request, username):
 @login_required
 def profile_unfollow(request, username):
     user_to_follow = get_object_or_404(User, username=username)
-    unfollow = Follow.objects.get(author=user_to_follow, user=request.user)
-    unfollow.delete()
+    if Follow.objects.filter(author=user_to_follow, user=request.user).exists():
+        Follow.objects.filter(author=user_to_follow, user=request.user).delete()
     return redirect('profile', username=username)
 
 

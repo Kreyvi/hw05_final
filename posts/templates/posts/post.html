@@ -12,8 +12,7 @@
                 <p class="card-text">
                     <!-- Ссылка на страницу автора в атрибуте href; username автора в тексте ссылки -->
                     <a href="{% url 'profile' post.author.username %}"><strong
-                            class="d-block text-gray-dark">@{{
-                        post.author.username }}</strong></a>
+                            class="d-block text-gray-dark">@{{ post.author.username }}</strong></a>
                     <!-- Текст поста -->
                     {{ post.text }}
                     {% include "includes/image_thumbnail.html" %}
@@ -34,9 +33,7 @@
             </div>
         </div>
         {% include "includes/comments.html" %}
-        {# тут будет совсем отдельно#}
     </div>
-
 </div>
 
 {% endblock %}

@@ -10,6 +10,15 @@ from django.urls import reverse
 from posts.models import Post, Group
 from yatube import settings
 
+FORM_ERROR_TEXT = ("Формат файлов 'txt' не поддерживается. "
+                   "Поддерживаемые форматы файлов: 'bmp, dib, gif, tif, tiff, "
+                   "jfif, jpe, jpg, jpeg, pbm, pgm, ppm, pnm, png, apng, blp, "
+                   "bufr, cur, pcx, dcx, dds, ps, eps, fit, fits, fli, flc, "
+                   "ftc, ftu, gbr, grib, h5, hdf, jp2, j2k, jpc, jpf, jpx, "
+                   "j2c, icns, ico, im, iim, mpg, mpeg, mpo, msp, palm, pcd,"
+                   " pdf, pxr, psd, bw, rgb, rgba, sgi, ras, tga, icb, vda, "
+                   "vst, webp, wmf, emf, xbm, xpm'.")
+
 
 @override_settings(MEDIA_ROOT=tempfile.gettempdir())
 class PostFormTests(TestCase):
@@ -36,10 +45,18 @@ class PostFormTests(TestCase):
             testfile,
             content_type='image/jpg'
         )
+        cls.broken_file = SimpleUploadedFile(
+            'test.txt',
+            testfile,
+            content_type='txt/txt'
+        )
         cls.form_data = {
             'text': 'ratatatata',
             'image': cls.test_image,
-
+        }
+        cls.broken_data = {
+            'text': 'error maybe?',
+            'image': cls.broken_file,
         }
         cache.clear()
 
@@ -47,7 +64,7 @@ class PostFormTests(TestCase):
         shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
 
     @override_settings(MEDIA_ROOT=tempfile.gettempdir())
-    def test_post_form(self):
+    def test_post_form_without_image(self):
         count = Post.objects.count()
         response = self.authorized_user.post(
             path=reverse('new_post'),
@@ -94,3 +111,12 @@ class PostFormTests(TestCase):
             with self.subTest():
                 response = self.authorized_user.get(urls_name)
                 self.assertIn('<img', response.content.decode())
+
+    @override_settings(MEDIA_ROOT=tempfile.gettempdir())
+    def test_not_image_file_post_form(self):
+        response = self.authorized_user.post(
+            path=reverse('new_post'),
+            data=self.broken_data,
+            follow=True,
+        )
+        self.assertFormError(response, 'form', 'image', FORM_ERROR_TEXT)
