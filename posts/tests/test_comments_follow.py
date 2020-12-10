@@ -71,6 +71,15 @@ class CommentFollowTests(TestCase):
         self.assertNotEqual(0, len(response_follower.context.get('page')))
         response_following = self.authorized_user.get(reverse('follow_index'))
         self.assertEqual(0, len(response_following.context.get('page')))
+
+    def test_unfollow(self):
+        Post.objects.create(
+            author=self.user,
+            text='Text',
+        )
+        self.follower_client.get(
+            reverse('profile_follow', args=(self.user,))
+        )
         self.follower_client.get(
             reverse('profile_unfollow', args=(self.user,))
         )
