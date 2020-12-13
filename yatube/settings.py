@@ -5,13 +5,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = '8_k52vf0sv5=vyl2*x%)o$#bub793rxkkt0=z@po*wwstki2=*'
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '[::1]',
     'testserver',
+]
+INTERNAL_IPS = [
+    '127.0.0.1',
+    'localhost'
 ]
 SITE_ID = 1
 
@@ -27,6 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'sorl.thumbnail',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [
@@ -37,6 +42,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'yatube.urls'
@@ -99,8 +105,10 @@ USE_TZ = True
 
 
 STATIC_URL = '/static/'
-# STATIC_ROOT = [os.path.join(BASE_DIR, 'static')]
-STATICFILES_DIRS = [str(os.path.join(BASE_DIR, 'static'))]
+if DEBUG:
+    STATIC_ROOT = [os.path.join(BASE_DIR, 'static')]
+else:
+    STATICFILES_DIRS = [str(os.path.join(BASE_DIR, 'static'))]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = str(os.path.join(BASE_DIR, 'media'))
@@ -118,3 +126,4 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
+SHOW_TOOLBAR_CALLBACK = False
